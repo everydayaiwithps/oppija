@@ -1,0 +1,976 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>OPPIJA — AI literacy practice for teachers</title>
+<meta name="description" content="OPPIJA turns AI literacy into three-minute card lessons for working teachers. Swipe through real classroom examples and practise spotting what AI gets wrong.">
+<meta name="theme-color" content="#EFEDF5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#100F17" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OPPIJA">
+<meta name="mobile-web-app-capable" content="yes">
+<meta property="og:title" content="OPPIJA — AI literacy practice for teachers">
+<meta property="og:description" content="Three-minute card lessons that build the judgement teachers need to use AI well.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://oppija.com">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%232B3A8F'/%3E%3Ccircle cx='32' cy='32' r='16' fill='none' stroke='%23F7B32B' stroke-width='8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:ital,wght@0,400..800;1,400..600&family=JetBrains+Mono:wght@400;600;700&display=swap">
+
+<style>
+/* ============================================================
+   OPPIJA — design tokens
+   ============================================================ */
+:root{
+  --paper:#EFEDF5;  --paper-2:#E4E1EE;
+  --card:#FFFFFF;   --card-2:#F6F4FB;
+  --ink:#1A1826;    --ink-soft:#454057;  --muted:#6E6885;
+  --line:#DAD5E6;   --line-soft:#E8E4F0;
+
+  --riso-red:#F0563A; --riso-blue:#2B3A8F; --riso-mint:#2FB89A;
+  --riso-amber:#F7B32B; --riso-plum:#8B4FA8;
+  --good:#1E9E7E; --bad:#D6442B;
+  --art-bg:#EAE6F4;
+
+  --shadow-lift:0 1px 0 rgba(26,24,38,.06), 0 12px 30px -18px rgba(26,24,38,.5);
+  --shadow-card:0 2px 0 rgba(26,24,38,.05), 0 22px 50px -30px rgba(26,24,38,.65);
+
+  --f-display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;
+  --f-body:"Hanken Grotesk",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+
+  --accent:var(--riso-red);
+  --art-1:var(--riso-red); --art-2:var(--riso-amber); --art-3:var(--riso-blue);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#100F17; --paper-2:#191725;
+    --card:#1D1B29; --card-2:#242235;
+    --ink:#F0EDF8; --ink-soft:#CFC9E0; --muted:#9A93B2;
+    --line:#33304A; --line-soft:#28263A;
+    --riso-red:#FF6B4E; --riso-blue:#7C8CF0; --riso-mint:#3FD4B2;
+    --riso-amber:#FFC64F; --riso-plum:#C177E0;
+    --good:#3FD4B2; --bad:#FF7358;
+    --art-bg:#262338;
+    --shadow-lift:0 1px 0 rgba(255,255,255,.03), 0 14px 34px -20px #000;
+    --shadow-card:0 1px 0 rgba(255,255,255,.04), 0 26px 56px -32px #000;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#100F17; --paper-2:#191725;
+  --card:#1D1B29; --card-2:#242235;
+  --ink:#F0EDF8; --ink-soft:#CFC9E0; --muted:#9A93B2;
+  --line:#33304A; --line-soft:#28263A;
+  --riso-red:#FF6B4E; --riso-blue:#7C8CF0; --riso-mint:#3FD4B2;
+  --riso-amber:#FFC64F; --riso-plum:#C177E0;
+  --good:#3FD4B2; --bad:#FF7358;
+  --art-bg:#262338;
+  --shadow-lift:0 1px 0 rgba(255,255,255,.03), 0 14px 34px -20px #000;
+  --shadow-card:0 1px 0 rgba(255,255,255,.04), 0 26px 56px -32px #000;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{
+  margin:0;font-family:var(--f-body);color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+:focus-visible{outline:2.5px solid var(--riso-blue);outline-offset:3px;border-radius:8px}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;font-weight:700;letter-spacing:-.025em;text-wrap:balance}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+
+.deskbg{position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(120% 80% at 10% 0%, color-mix(in srgb,var(--riso-amber) 13%,transparent), transparent 60%),
+    radial-gradient(90% 70% at 100% 100%, color-mix(in srgb,var(--riso-blue) 15%,transparent), transparent 62%),
+    var(--paper-2);}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .grain{mix-blend-mode:screen;opacity:.16}}
+:root[data-theme="dark"] .grain{mix-blend-mode:screen;opacity:.16}
+
+/* ============================================================
+   app frame
+   ============================================================ */
+.app{
+  position:relative;z-index:2;width:100%;max-width:452px;height:100dvh;
+  margin:0 auto;background:var(--paper);display:flex;flex-direction:column;overflow:hidden;
+}
+@media (min-width:560px) and (min-height:700px){
+  .app{height:min(880px,calc(100dvh - 48px));margin:24px auto;border-radius:38px;
+       border:1px solid var(--line);box-shadow:var(--shadow-card)}
+}
+.viewport{flex:1;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.viewport::-webkit-scrollbar{display:none}
+
+.eyebrow{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:700}
+
+/* ---------- brand bar ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 20px 12px}
+.wordmark{display:flex;align-items:center;gap:9px}
+.mark{width:28px;height:28px;flex:0 0 auto}
+.wordmark b{font-family:var(--f-display);font-size:21px;font-weight:800;letter-spacing:.02em}
+.wordmark i{display:block;font-style:normal;font-family:var(--f-mono);font-size:9px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:-2px}
+.flamechip{display:flex;align-items:center;gap:7px;padding:7px 12px 7px 10px;border-radius:999px;
+  background:color-mix(in srgb,var(--riso-red) 14%,var(--card));
+  border:1px solid color-mix(in srgb,var(--riso-red) 32%,transparent)}
+.flamechip.cold{background:var(--card-2);border-color:var(--line);color:var(--muted)}
+.flamechip .num{font-size:14px}
+
+/* ---------- hero ---------- */
+.hero{margin:6px 20px 0;padding:20px;background:var(--card);border:1px solid var(--line-soft);
+  border-radius:24px;box-shadow:var(--shadow-lift);display:flex;gap:18px;align-items:center}
+.ring{position:relative;width:92px;height:92px;flex:0 0 auto}
+.ring svg{transform:rotate(-90deg)}
+.ring .lab{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .lab b{font-family:var(--f-mono);font-size:20px;font-weight:700;line-height:1}
+.ring .lab small{font-family:var(--f-mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.hero h2{font-size:21px;line-height:1.12;margin-bottom:5px}
+.hero p{font-size:13.5px;color:var(--muted);line-height:1.45}
+
+.sec{margin-top:24px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 20px 10px}
+.sec-head h3{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+.sec-head span{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+
+/* ---------- module card ---------- */
+.modcard{display:block;width:calc(100% - 40px);margin:0 20px;border-radius:26px;overflow:hidden;
+  background:var(--card);border:1px solid var(--line-soft);box-shadow:var(--shadow-lift);
+  transition:transform .18s ease}
+.modcard:hover{transform:translateY(-2px)}
+.modcard .strip{height:150px;background:var(--art-bg)}
+.modcard .strip svg{width:100%;height:100%;display:block}
+.modcard .body{padding:17px 19px 19px}
+.modcard h4{font-size:22px;line-height:1.1;margin:7px 0 6px}
+.modcard p{font-size:14px;color:var(--ink-soft);line-height:1.5}
+.metarow{display:flex;align-items:center;gap:10px;margin-top:14px}
+.pill{font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--accent) 15%,transparent);
+  color:color-mix(in srgb,var(--accent) 82%,var(--ink))}
+.bar{flex:1;height:5px;border-radius:999px;background:var(--line-soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.barnum{font-family:var(--f-mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gobtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:15px;
+  padding:14px;border-radius:15px;background:var(--ink);color:var(--paper);
+  font-family:var(--f-display);font-size:15.5px;font-weight:700}
+
+/* ---------- practice list ---------- */
+.plist{display:flex;flex-direction:column;gap:9px;padding:0 20px}
+.plist li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;line-height:1.45;color:var(--ink-soft)}
+.plist b{flex:0 0 22px;height:22px;margin-top:1px;border-radius:7px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--riso-blue) 15%,transparent);color:var(--riso-blue);
+  font-family:var(--f-mono);font-size:10.5px}
+
+/* ---------- upcoming ---------- */
+.soon{display:flex;flex-direction:column;gap:10px;padding:0 20px}
+.soonrow{display:flex;gap:13px;align-items:center;padding:13px 14px;border-radius:16px;
+  background:var(--card);border:1px solid var(--line-soft);opacity:.72}
+.soonrow .dot{flex:0 0 30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  font-family:var(--f-mono);font-size:11px;font-weight:700;background:var(--card-2);color:var(--muted)}
+.soonrow h4{font-size:14.5px;line-height:1.2}
+.soonrow p{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);margin-top:2px;text-transform:uppercase}
+.soonrow .tag{margin-left:auto;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+
+/* ---------- week strip ---------- */
+.week{display:flex;gap:6px;padding:0 20px}
+.day{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;padding:10px 0 9px;
+  border-radius:11px;background:var(--card);border:1px solid var(--line-soft)}
+.day small{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.06em;color:var(--muted)}
+.day .d{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.day.hit .d{background:var(--riso-red);box-shadow:0 0 0 4px color-mix(in srgb,var(--riso-red) 20%,transparent)}
+.day.today{border-color:color-mix(in srgb,var(--riso-blue) 55%,transparent)}
+
+/* ---------- footer ---------- */
+.foot{padding:26px 20px 30px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.foot .fm{display:flex;align-items:center;gap:7px;font-family:var(--f-display);font-weight:800;
+  font-size:14px;letter-spacing:.03em;color:var(--muted)}
+.foot p{font-size:11.5px;color:var(--muted);line-height:1.5;max-width:34ch}
+.foot a{color:var(--muted)}
+
+/* ============================================================
+   PLAYER
+   ============================================================ */
+.player{position:absolute;inset:0;z-index:40;display:none;flex-direction:column;background:var(--paper)}
+.player.on{display:flex}
+@media (min-width:560px) and (min-height:700px){.player{border-radius:38px;overflow:hidden}}
+
+.segs{display:flex;gap:3px;padding:14px 14px 0}
+.seg{flex:1;height:3px;border-radius:999px;background:var(--line);overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .28s ease}
+.seg.filled i{width:100%}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 16px 4px}
+.phead .pt{display:flex;align-items:center;gap:8px;min-width:0}
+.phead .pt svg{flex:0 0 auto}
+.phead .pt span{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xclose{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--muted);
+  background:var(--card-2);flex:0 0 auto}
+
+.stage{flex:1;position:relative;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.deck{position:absolute;top:0;left:0;height:100%;display:flex;will-change:transform}
+.deck.snap{transition:transform .38s cubic-bezier(.22,.9,.26,1)}
+.slide{flex:0 0 auto;height:100%;padding:8px 14px 14px;display:flex}
+.lcard{flex:1;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line-soft);
+  border-radius:30px;box-shadow:var(--shadow-card);overflow:hidden}
+.lscroll{flex:1;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;display:flex;flex-direction:column}
+.lscroll::-webkit-scrollbar{display:none}
+
+.art{background:var(--art-bg);height:168px;flex:0 0 auto}
+.art svg{width:100%;height:100%;display:block}
+.lbody{flex:1;padding:22px 22px 26px;display:flex;flex-direction:column;gap:13px;justify-content:center}
+.lbody .eyebrow{color:color-mix(in srgb,var(--accent) 75%,var(--muted))}
+.lbody h2{font-size:30px;line-height:1.05}
+.lbody h3{font-size:22px;line-height:1.14}
+.lbody p{font-size:16px;line-height:1.55;color:var(--ink-soft)}
+.lbody p b{color:var(--ink)}
+
+.ctxline{font-size:13px;color:var(--muted);line-height:1.45}
+.output{font-family:var(--f-display);font-size:18px;line-height:1.42;color:var(--ink);
+  border-left:3px solid color-mix(in srgb,var(--accent) 55%,transparent);padding:3px 0 3px 15px;font-weight:400}
+.statbig{font-family:var(--f-display);font-weight:800;font-size:60px;line-height:.9;letter-spacing:-.05em;color:var(--accent)}
+.quote{font-size:21px;line-height:1.38;font-style:italic}
+.quote-by{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:center;gap:11px;width:100%;padding:13px 14px;border-radius:14px;
+  border:1.5px solid var(--line);background:var(--card-2);font-size:15px;line-height:1.35;font-weight:600;
+  transition:border-color .15s ease,background .15s ease,opacity .15s ease}
+.opt:hover:not([disabled]){border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.opt .key{flex:0 0 24px;height:24px;border-radius:7px;display:grid;place-items:center;
+  font-family:var(--f-mono);font-size:11px;font-weight:700;background:var(--card);
+  border:1px solid var(--line);color:var(--muted)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 13%,var(--card))}
+.opt.right .key{background:var(--good);border-color:var(--good);color:#fff}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--card))}
+.opt.wrong .key{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt.dim{opacity:.5}
+.opt[disabled]{cursor:default;pointer-events:none}   /* let taps fall through to the card */
+
+.why{margin-top:12px;padding:14px 16px;border-radius:15px;background:var(--card-2);
+  border-left:3px solid var(--accent);font-size:14.5px;line-height:1.52;color:var(--ink-soft)}
+.why b.verdict{display:block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;margin-bottom:5px}
+.why b.verdict.ok{color:var(--good)} .why b.verdict.no{color:var(--bad)}
+.why b{color:var(--ink)}
+.why i{font-style:italic}
+
+.tapcard{width:100%;padding:16px;border-radius:16px;
+  border:1.5px dashed color-mix(in srgb,var(--accent) 50%,transparent);
+  background:color-mix(in srgb,var(--accent) 7%,var(--card-2));
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.04em;color:var(--muted);
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tapcard.open{border-style:solid;display:block;font-family:var(--f-body);letter-spacing:0;
+  font-size:15.5px;line-height:1.52;color:var(--ink-soft);cursor:default}
+
+.points{display:flex;flex-direction:column;gap:12px}
+.points li{display:flex;gap:12px;font-size:15.5px;line-height:1.45;color:var(--ink-soft)}
+.points i{flex:0 0 21px;height:21px;margin-top:2px;border-radius:7px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--accent) 18%,transparent);color:color-mix(in srgb,var(--accent) 85%,var(--ink));
+  font-family:var(--f-mono);font-style:normal;font-size:10.5px;font-weight:700}
+
+.pfoot{flex:0 0 auto;padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
+.cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;border-radius:16px;
+  background:var(--ink);color:var(--paper);font-family:var(--f-display);font-size:16px;font-weight:700;
+  transition:transform .12s ease,opacity .18s ease}
+.cta:active{transform:scale(.985)}
+.cta[disabled]{opacity:.32;cursor:not-allowed}
+.cta.accent{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .cta.accent{color:#14131C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cta.accent{color:#14131C}}
+.hint{text-align:center;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-top:9px}
+
+/* completion */
+.done{flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:24px 22px}
+.burst{align-self:center;width:126px;height:126px}
+.done h2{font-size:32px;text-align:center;line-height:1.03}
+.done .sub{text-align:center;color:var(--muted);font-size:14.5px;line-height:1.45}
+.scorebox{display:flex;border:1px solid var(--line-soft);border-radius:16px;background:var(--card);overflow:hidden}
+.scorebox div{flex:1;padding:15px 8px;text-align:center;border-right:1px solid var(--line-soft)}
+.scorebox div:last-child{border-right:none}
+.scorebox b{display:block;font-family:var(--f-mono);font-size:22px;font-weight:700;color:var(--accent)}
+.scorebox small{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* sheet + toast */
+.sheet{position:absolute;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;
+  background:color-mix(in srgb,var(--ink) 46%,transparent)}
+.sheet.on{display:flex}
+@media (min-width:560px) and (min-height:700px){.sheet{border-radius:38px;overflow:hidden}}
+.sheet-in{width:100%;background:var(--card);border-radius:30px 30px 0 0;
+  padding:26px 22px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;
+  animation:up .34s cubic-bezier(.22,.9,.25,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet-in h2{font-size:25px;line-height:1.08}
+.sheet-in p{font-size:15px;line-height:1.5;color:var(--ink-soft)}
+.goalset{display:flex;gap:8px}
+.goalbtn{flex:1;padding:13px 8px;border-radius:15px;text-align:center;background:var(--card-2);border:1.5px solid var(--line)}
+.goalbtn[aria-pressed="true"]{border-color:var(--riso-blue);background:color-mix(in srgb,var(--riso-blue) 12%,var(--card))}
+.goalbtn b{display:block;font-family:var(--f-display);font-size:15px}
+.goalbtn small{display:block;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin-top:2px}
+
+.toast{position:absolute;left:50%;bottom:98px;transform:translateX(-50%) translateY(14px);z-index:70;
+  padding:11px 17px;border-radius:999px;background:var(--ink);color:var(--paper);
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.04em;opacity:0;pointer-events:none;
+  transition:opacity .24s ease,transform .24s ease;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%)}
+
+@media (prefers-reduced-motion:reduce){
+  .deck.snap{transition:transform .01s linear}
+  .sheet-in{animation:none}
+  .bar i,.seg i{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="deskbg"></div>
+<div class="grain"></div>
+
+<main class="app" id="app">
+  <div class="viewport" id="viewport"></div>
+  <section class="player" id="player" aria-live="polite"></section>
+  <div class="sheet" id="sheet"></div>
+  <div class="toast" id="toast" role="status"></div>
+</main>
+
+<script>
+"use strict";
+
+/* ============================================================
+   BRAND MARK
+   ============================================================ */
+const MARK = `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+  <rect width="64" height="64" rx="16" fill="var(--riso-blue)"/>
+  <circle cx="32" cy="32" r="16" fill="none" stroke="var(--riso-amber)" stroke-width="8"/>
+</svg>`;
+
+/* ============================================================
+   ILLUSTRATIONS
+   ============================================================ */
+const ART = {
+  mirror:`<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <circle cx="62" cy="75" r="40" fill="var(--art-1)" opacity=".92"/>
+    <circle cx="138" cy="75" r="40" fill="var(--art-3)" opacity=".6" style="mix-blend-mode:multiply"/>
+    <path d="M100 18v114" stroke="var(--art-2)" stroke-width="4" stroke-dasharray="9 8" stroke-linecap="round"/>
+    <circle cx="62" cy="75" r="13" fill="#fff" opacity=".92"/>
+    <circle cx="138" cy="75" r="13" fill="#fff" opacity=".92"/>
+  </svg>`,
+  spotlight:`<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M100 8 172 142H28z" fill="var(--art-2)" opacity=".42"/>
+    <circle cx="100" cy="110" r="18" fill="var(--art-1)"/>
+    <circle cx="40" cy="122" r="9" fill="var(--art-3)" opacity=".45"/>
+    <circle cx="162" cy="122" r="9" fill="var(--art-3)" opacity=".45"/>
+    <circle cx="70" cy="132" r="6" fill="var(--art-3)" opacity=".33"/>
+    <circle cx="132" cy="132" r="6" fill="var(--art-3)" opacity=".33"/>
+  </svg>`,
+  quotebubble:`<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect x="24" y="28" width="118" height="76" rx="20" fill="var(--art-1)"/>
+    <path d="M54 104l-6 26 30-26z" fill="var(--art-1)"/>
+    <rect x="76" y="56" width="100" height="62" rx="18" fill="var(--art-3)" opacity=".62" style="mix-blend-mode:multiply"/>
+    <circle cx="60" cy="66" r="7" fill="#fff" opacity=".9"/>
+    <circle cx="84" cy="66" r="7" fill="#fff" opacity=".9"/>
+    <circle cx="108" cy="66" r="7" fill="#fff" opacity=".9"/>
+  </svg>`,
+  book:`<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M30 34h62v92H30z" fill="var(--art-3)" opacity=".6"/>
+    <path d="M108 34h62v92h-62z" fill="var(--art-1)"/>
+    <path d="M100 30v100" stroke="var(--art-2)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M44 58h34M44 76h34M122 58h34M122 76h34" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+  </svg>`,
+  scope:`<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <circle cx="88" cy="66" r="42" fill="var(--art-2)" opacity=".5"/>
+    <circle cx="88" cy="66" r="42" fill="none" stroke="var(--art-3)" stroke-width="7"/>
+    <path d="M120 98l38 38" stroke="var(--art-1)" stroke-width="13" stroke-linecap="round"/>
+    <path d="M70 66h36M88 48v36" stroke="var(--art-3)" stroke-width="5" stroke-linecap="round"/>
+  </svg>`,
+  shield:`<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M100 16l54 20v42c0 32-24 50-54 58-30-8-54-26-54-58V36z" fill="var(--art-3)" opacity=".65"/>
+    <path d="M100 16l54 20v42c0 32-24 50-54 58z" fill="var(--art-1)"/>
+    <path d="M76 76l16 17 34-36" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`
+};
+const artOf = k => ART[k] || ART.mirror;
+
+/* ============================================================
+   LESSON CONTENT — 12 cards
+   ============================================================ */
+const MODULE = {
+  id:"hallucination",
+  code:"01",
+  category:"Critical Evaluation",
+  title:"Hallucination Hunter",
+  blurb:"Spot the moment AI sounds most confident and is quietly, completely wrong — using outputs a teacher could plausibly meet this week.",
+  art:"mirror",
+  minutes:8,
+  lesson:{
+    id:"spot",
+    title:"Spot the Hallucination",
+    cards:[
+
+/* 1 */ {t:"title", kicker:"Module 01 · Critical Evaluation", title:"Hallucination Hunter",
+        sub:"Six real AI outputs. Some are safe to hand to students. Some are confidently, completely wrong.",
+        art:"mirror"},
+
+/* 2 */ {t:"concept", title:"Fluent, not factual", art:"scope",
+        body:"A language model predicts the next likely word, one after another. It is built to sound right — not to be right. When it doesn't know something, it produces something plausible anyway, because plausibility is the whole job."},
+
+/* 3 */ {t:"spot", ctx:"You asked an AI chatbot for a fact to put in a geography worksheet.",
+        out:"“The Nile is the longest river in the world, flowing through eleven countries including Nigeria.”",
+        correct:1, verdict:"Hallucination",
+        why:"<b>Wrong.</b> The Nile does run through about eleven countries — but Nigeria is not one of them. The true half makes the false half feel trustworthy, and that is exactly how a confident error slips past you. Check place-facts against an atlas before printing."},
+
+/* 4 */ {t:"spot", ctx:"You asked for the boiling point of water for a science note.",
+        out:"“Water boils at 100°C (212°F) at sea level, i.e. at one atmosphere of pressure.”",
+        correct:0, verdict:"Safe to use",
+        why:"<b>Correct.</b> A stable, well-established fact — and it even added the condition that matters (pressure). Not everything AI says is wrong. The skill is telling stable facts from invented specifics, not distrusting everything."},
+
+/* 5 */ {t:"spot", ctx:"You asked for a quotation to open a lesson on courage.",
+        out:"“As Nelson Mandela said, ‘Courage is the price that life exacts for granting peace.’”",
+        correct:1, verdict:"Hallucination",
+        why:"<b>Fabricated attribution.</b> That line is close to something Amelia Earhart wrote — not Mandela. Models routinely invent plausible quotes and pin them on famous names. If you can't find it in a reliable source, don't put a name to it."},
+
+/* 6 */ {t:"concept", title:"The true part smuggles in the false part", art:"quotebubble",
+        body:"Notice the pattern in those three. Each wrong answer arrived wrapped in something correct — a real river, a real person, a real-sounding sentence. Accuracy nearby is not evidence of accuracy here."},
+
+/* 7 */ {t:"spot", ctx:"You asked for a citation to support a point in a teacher-training slide.",
+        out:"“A 2021 study by Whitfield &amp; Osei in the Journal of Educational Research (Vol. 44, pp. 210–225) found a 37% improvement.”",
+        correct:1, verdict:"Hallucination",
+        why:"<b>Almost certainly invented.</b> AI is notorious for citations that look flawless — real-sounding authors, a journal, a volume, a page range, a precise statistic — and simply do not exist. Never cite a source the AI handed you until you have found the actual paper."},
+
+/* 8 */ {t:"spot", ctx:"You asked it to solve and explain a maths problem for your answer key.",
+        out:"“17 × 24 = 408, because 17 × 24 = (17×20) + (17×4) = 340 + 68 = 408.”",
+        correct:0, verdict:"Safe to use",
+        why:"<b>Correct — but always check the working.</b> The arithmetic holds here. AI can be right and can show its reasoning, yet it still makes confident calculation slips. For anything going into an answer key, re-do the numbers yourself."},
+
+/* 9 */ {t:"spot", ctx:"You asked the AI to explain a word's origin for a vocabulary lesson.",
+        out:"“The word ‘quarantine’ comes from the Latin ‘quaranta’, meaning ‘to isolate the sick’.”",
+        correct:1, verdict:"Hallucination",
+        why:"<b>Made-up etymology.</b> It comes from the Italian <i>quaranta giorni</i> — “forty days,” the time ships were held in port. There is no Latin word meaning “to isolate the sick.” Models invent tidy word-origin stories constantly. Check a dictionary before teaching one as fact."},
+
+/* 10 */ {t:"reveal", q:"Which AI outputs deserve the most suspicion?",
+        a:"Anything carrying a precise, checkable specific — a page range, a date, a named source, a word origin, a statistic. Fluency costs the model nothing exactly where verification costs you the most.",
+        art:"scope"},
+
+/* 11 */ {t:"quote", text:"You are not the AI's assistant. The AI is yours.",
+        by:"OPPIJA · the verification habit"},
+
+/* 12 */ {t:"summary", title:"Spot the Hallucination",
+        points:[
+          "AI is built to sound right, not to be right — confident wrongness is its default failure mode.",
+          "A correct detail sitting next to a claim is not evidence for that claim.",
+          "Invented specifics — citations, quotes, etymologies, statistics — are the highest-risk outputs.",
+          "Verify at least one checkable claim before anything reaches your students."
+        ]}
+    ]
+  }
+};
+
+const UPCOMING = [
+  {code:"02", title:"How LLMs Work", cat:"Foundational Knowledge"},
+  {code:"03", title:"Prompt Practice", cat:"Technical Fluency"},
+  {code:"04", title:"Bias Spotter", cat:"Critical Evaluation"},
+  {code:"05", title:"Classroom Dilemmas", cat:"Ethical Reasoning"}
+];
+
+const CARDS = MODULE.lesson.cards;
+const N = CARDS.length;
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY = "oppija.v1";
+const DEFAULTS = {xp:0, goal:100, streak:0, lastDay:null, dayKey:null, dayXp:0,
+                  history:{}, done:false, best:null, onboarded:false};
+let S = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    const s = raw ? Object.assign({},DEFAULTS,JSON.parse(raw)) : Object.assign({},DEFAULTS);
+    const t = dayKey(0);
+    if(s.dayKey !== t){ s.dayKey = t; s.dayXp = 0; }
+    return s;
+  }catch(e){ return Object.assign({},DEFAULTS); }
+}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function dayKey(off){ const d=new Date(); d.setDate(d.getDate()+(off||0)); return d.toLocaleDateString("en-CA"); }
+function liveStreak(){ if(!S.lastDay) return 0; return (S.lastDay===dayKey(0)||S.lastDay===dayKey(-1)) ? S.streak : 0; }
+function awardXp(n){ S.xp+=n; S.dayXp+=n; S.history[dayKey(0)]=(S.history[dayKey(0)]||0)+n; save(); }
+
+const $ = s => document.querySelector(s);
+const viewport=$("#viewport"), playerEl=$("#player"), sheetEl=$("#sheet"), toastEl=$("#toast");
+let toastTimer;
+function toast(msg){
+  toastEl.textContent=msg; toastEl.classList.add("on");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove("on"),1800);
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function renderHome(){
+  const st = liveStreak();
+  const pct = Math.min(100, Math.round(S.dayXp/S.goal*100));
+  const R=41, C=2*Math.PI*R;
+  const h=new Date().getHours();
+  const greet = h<12 ? "Good morning" : h<18 ? "Good afternoon" : "Good evening";
+  const goalMsg = pct>=100 ? "Today's goal is done. Anything more is a bonus."
+    : S.dayXp>0 ? `${S.goal-S.dayXp} XP to go — about half a module.`
+    : "Nothing yet today. One module takes about eight minutes.";
+
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const k=dayKey(-i), d=new Date(); d.setDate(d.getDate()-i);
+    days.push({hit:(S.history[k]||0)>0, label:["S","M","T","W","T","F","S"][d.getDay()], today:i===0});
+  }
+
+  viewport.innerHTML = `
+  <div class="topbar">
+    <div class="wordmark">${MARK}<div><b>OPPIJA</b><i>AI literacy practice</i></div></div>
+    <div class="flamechip ${st?"":"cold"}" title="Day streak">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2c.5 4-2.5 5-3.7 7.4C8 12 9 14 9 14s-1.6-.6-2.3-2.2C5.4 13.2 5 15 5 16.4 5 20 8.1 22 12 22s7-2.3 7-6c0-4.6-3.6-6.4-6-14z"/></svg>
+      <span class="num">${st}</span>
+    </div>
+  </div>
+
+  <section class="hero" aria-label="Daily goal">
+    <div class="ring">
+      <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden="true">
+        <circle cx="46" cy="46" r="${R}" fill="none" stroke="var(--line)" stroke-width="9"/>
+        <circle cx="46" cy="46" r="${R}" fill="none" stroke="var(--riso-blue)" stroke-width="9"
+                stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C-C*pct/100}"/>
+      </svg>
+      <div class="lab"><b>${S.dayXp}</b><small>of ${S.goal}</small></div>
+    </div>
+    <div><h2>${greet}.</h2><p>${goalMsg}</p></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h3>${S.done?"Practise again":"Start here"}</h3><span>Module ${MODULE.code}</span></div>
+    <button class="modcard" id="startcard">
+      <div class="strip">${artOf(MODULE.art)}</div>
+      <div class="body">
+        <span class="eyebrow">${MODULE.category}</span>
+        <h4>${MODULE.title}</h4>
+        <p>${MODULE.blurb}</p>
+        <div class="metarow">
+          <span class="pill">${N} cards</span>
+          <span class="bar"><i style="width:${S.done?100:0}%"></i></span>
+          <span class="barnum">${MODULE.minutes} min</span>
+        </div>
+        <span class="gobtn">${S.done?"Practise again":"Start module"}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </span>
+      </div>
+    </button>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h3>What you'll practise</h3></div>
+    <ul class="plist">
+      <li><b>1</b><span>Judging six real AI outputs as safe or fabricated.</span></li>
+      <li><b>2</b><span>Recognising the shapes hallucinations usually take.</span></li>
+      <li><b>3</b><span>Knowing which claims to verify before students see them.</span></li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h3>Your week</h3><span>${days.filter(d=>d.hit).length}/7 days</span></div>
+    <div class="week">
+      ${days.map(d=>`<div class="day ${d.hit?"hit":""} ${d.today?"today":""}"><small>${d.label}</small><span class="d"></span></div>`).join("")}
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h3>Coming next</h3></div>
+    <div class="soon">
+      ${UPCOMING.map(m=>`<div class="soonrow">
+        <span class="dot">${m.code}</span>
+        <div><h4>${m.title}</h4><p>${m.cat}</p></div>
+        <span class="tag">Soon</span>
+      </div>`).join("")}
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="fm">${MARK}<span>OPPIJA</span></div>
+    <p>Free AI-literacy practice for the educator community. New modules added regularly.</p>
+    <p><a href="https://oppija.com">oppija.com</a></p>
+  </footer>`;
+
+  $("#startcard").addEventListener("click", openLesson);
+}
+
+/* ============================================================
+   CARD MARKUP
+   ============================================================ */
+const SPOT_OPTS = ["Safe to use","Hallucination"];
+
+function cardHTML(c,i){
+  const art = c.art ? `<div class="art">${artOf(c.art)}</div>` : "";
+  let body = "";
+  switch(c.t){
+    case "title":
+      body = `<span class="eyebrow">${c.kicker}</span><h2>${c.title}</h2><p>${c.sub}</p>`; break;
+    case "concept":
+      body = `<h3>${c.title}</h3><p>${c.body}</p>`; break;
+    case "spot":
+      body = `<span class="eyebrow">Spot the hallucination</span>
+        <p class="ctxline">${c.ctx}</p>
+        <p class="output">${c.out}</p>
+        <div class="opts" data-opts="${i}">
+          ${SPOT_OPTS.map((o,k)=>`<button class="opt" data-i="${i}" data-k="${k}"><span class="key">${"AB"[k]}</span><span>${o}</span></button>`).join("")}
+        </div>
+        <div data-why="${i}"></div>`; break;
+    case "reveal":
+      body = `<span class="eyebrow">Think first</span><h3>${c.q}</h3>
+        <button class="tapcard" data-reveal="${i}"><span>Tap to reveal</span><span>↓</span></button>`; break;
+    case "quote":
+      body = `<svg width="34" height="26" viewBox="0 0 34 26" fill="var(--accent)" aria-hidden="true"><path d="M0 26V13C0 5.8 4.6.9 12 0v5.4C8.2 6.2 6.4 8.4 6.4 11H12v15H0zm22 0V13c0-7.2 4.6-12.1 12-13v5.4c-3.8.8-5.6 3-5.6 5.6H34v15H22z"/></svg>
+        <p class="quote">${c.text}</p><span class="quote-by">${c.by}</span>`; break;
+    case "summary":
+      body = `<span class="eyebrow">Takeaways</span><h3>${c.title}</h3>
+        <ul class="points">${c.points.map((p,k)=>`<li><i>${k+1}</i><span>${p}</span></li>`).join("")}</ul>`; break;
+  }
+  return `<div class="slide" data-slide="${i}">
+    <article class="lcard"><div class="lscroll">${art}<div class="lbody">${body}</div></div></article>
+  </div>`;
+}
+
+/* ============================================================
+   PLAYER + SWIPE ENGINE
+   ============================================================ */
+let P = null;          // {i, answered:{}, correct, asked, xp, done}
+let deck, stage, W = 0;
+
+function openLesson(){
+  P = {i:0, answered:{}, correct:0, asked:0, xp:0, finished:false};
+  playerEl.classList.add("on");
+  playerEl.innerHTML = `
+    <div class="segs" id="segs">${CARDS.map(()=>`<span class="seg"><i></i></span>`).join("")}</div>
+    <div class="phead">
+      <span class="pt">${MARK}<span>${MODULE.title}</span></span>
+      <button class="xclose" id="pclose" aria-label="Close module">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="deck" id="deck">${CARDS.map(cardHTML).join("")}</div>
+    </div>
+    <div class="pfoot">
+      <button class="cta" id="next">
+        <span id="nextlabel">Continue</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </button>
+      <p class="hint" id="hint">1 of ${N} · swipe or use ← →</p>
+    </div>`;
+
+  deck = $("#deck"); stage = $("#stage");
+  layout();
+  wireCards();
+  wireGestures();
+  goTo(0, false);
+
+  window.addEventListener("resize", layout);
+  document.addEventListener("keydown", onKey);
+}
+
+function closeLesson(){
+  playerEl.classList.remove("on");
+  playerEl.innerHTML = "";
+  window.removeEventListener("resize", layout);
+  document.removeEventListener("keydown", onKey);
+  P = null; deck = stage = null;
+  renderHome();
+}
+
+function layout(){
+  if(!stage) return;
+  W = stage.clientWidth;
+  deck.style.width = (W*N)+"px";
+  deck.querySelectorAll(".slide").forEach(s=>{ s.style.width = W+"px"; });
+  setX(-P.i*W, false);
+}
+function setX(x, animate){
+  deck.classList.toggle("snap", !!animate);
+  deck.style.transform = `translate3d(${x}px,0,0)`;
+}
+
+/* --- gating: a card can require an interaction before moving on --- */
+function locked(i){
+  const c = CARDS[i];
+  if(c.t==="spot")   return !P.answered[i];
+  if(c.t==="reveal") return !P.answered[i];
+  return false;
+}
+
+function goTo(i, animate){
+  if(i<0) i=0;
+  if(i>N-1) i=N-1;
+  P.i = i;
+  setX(-i*W, animate!==false);
+  // segments
+  const segs = $("#segs").children;
+  for(let k=0;k<N;k++) segs[k].classList.toggle("filled", k<=i);
+  // footer
+  const last = i===N-1;
+  const btn = $("#next"), lab = $("#nextlabel");
+  btn.disabled = locked(i);
+  btn.classList.toggle("accent", last);
+  lab.textContent = last ? "Finish module" : "Continue";
+  $("#hint").textContent = `${i+1} of ${N} · swipe or use ← →`;
+}
+
+function advance(dir){
+  if(!P || P.finished) return;
+  if(dir>0){
+    if(locked(P.i)){ nudge(); return; }
+    if(P.i===N-1){ finish(); return; }
+    goTo(P.i+1, true);
+  }else{
+    if(P.i===0) return;
+    goTo(P.i-1, true);
+  }
+}
+function nudge(){
+  const c = CARDS[P.i];
+  toast(c.t==="spot" ? "Choose an answer to continue" : "Tap the card to reveal");
+  // small rubber-band bounce
+  setX(-P.i*W - 26, true);
+  setTimeout(()=>{ if(P) setX(-P.i*W, true); }, 150);
+}
+
+/* --- card interactions --- */
+function wireCards(){
+  deck.querySelectorAll(".opt").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const i = +btn.dataset.i, k = +btn.dataset.k;
+      if(P.answered[i]) return;
+      const c = CARDS[i];
+      const right = k===c.correct;
+      P.answered[i] = {pick:k};
+      P.asked++; if(right) P.correct++;
+      paintSpot(i, k);
+      const gain = right ? 15 : 5;
+      awardXp(gain); P.xp += gain;
+      if(P.i===i) $("#next").disabled = false;
+      toast(right ? "+15 XP · correct" : "+5 XP · keep going");
+    });
+  });
+  deck.querySelectorAll("[data-reveal]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const i = +btn.dataset.reveal;
+      if(P.answered[i]) return;
+      P.answered[i] = true;
+      btn.classList.add("open");
+      btn.innerHTML = CARDS[i].a;
+      awardXp(5); P.xp += 5;
+      if(P.i===i) $("#next").disabled = false;
+    });
+  });
+}
+function paintSpot(i, pick){
+  const c = CARDS[i];
+  const wrap = deck.querySelector(`[data-opts="${i}"]`);
+  [...wrap.children].forEach((b,k)=>{
+    b.disabled = true;
+    if(k===c.correct) b.classList.add("right");
+    else if(k===pick) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  const ok = pick===c.correct;
+  const slot = deck.querySelector(`[data-why="${i}"]`);
+  slot.innerHTML =
+    `<div class="why"><b class="verdict ${c.correct===0?"ok":"no"}">${ok?"Correct":"Not quite"} · ${c.verdict}</b>${c.why}</div>`;
+  // the explanation can land below the fold on short screens — bring it up
+  requestAnimationFrame(()=>{
+    const box = slot.closest(".lscroll");
+    if(box && box.scrollHeight > box.clientHeight)
+      box.scrollTo({top:box.scrollHeight, behavior:"smooth"});
+  });
+}
+
+/* --- gesture engine: finger-tracking horizontal pager --- */
+function wireGestures(){
+  let active=false, axis=null, x0=0, y0=0, lastX=0, lastT=0, vx=0, dragged=false, dragEndAt=0, id=null;
+
+  const onDown = e=>{
+    if(P.finished) return;
+    active=true; axis=null; dragged=false;
+    id=e.pointerId;
+    x0=lastX=e.clientX; y0=e.clientY; lastT=e.timeStamp; vx=0;
+    deck.classList.remove("snap");
+  };
+
+  const onMove = e=>{
+    if(!active || e.pointerId!==id) return;
+    const dx=e.clientX-x0, dy=e.clientY-y0;
+
+    if(!axis){
+      if(Math.abs(dx)>9 && Math.abs(dx)>Math.abs(dy)){
+        axis="x"; dragged=true;
+        try{ stage.setPointerCapture(id); }catch(err){}
+      }else if(Math.abs(dy)>9){
+        axis="y"; active=false; return;    // let the card scroll vertically
+      }else return;
+    }
+    if(axis!=="x") return;
+
+    const dt = e.timeStamp-lastT;
+    if(dt>0) vx = (e.clientX-lastX)/dt;
+    lastX=e.clientX; lastT=e.timeStamp;
+
+    let adj = dx;
+    const atStart = P.i===0 && dx>0;
+    const atEnd   = P.i===N-1 && dx<0;
+    const blocked = locked(P.i) && dx<0;
+    if(atStart || atEnd || blocked) adj = dx*0.28;   // rubber band
+    setX(-P.i*W + adj, false);
+    e.preventDefault();
+  };
+
+  const onUp = e=>{
+    if(!active || (id!==null && e.pointerId!==id)) return;
+    active=false;
+    try{ stage.releasePointerCapture(id); }catch(err){}
+    if(axis!=="x"){ id=null; return; }
+
+    const dx = e.clientX-x0;
+    const far  = Math.abs(dx) > W*0.22;
+    const fast = Math.abs(vx) > 0.45;
+    id=null;
+
+    if(dx<0 && (far||fast)){
+      if(locked(P.i)) nudge();
+      else if(P.i===N-1){ setX(-P.i*W,true); finish(); }
+      else goTo(P.i+1, true);
+    }else if(dx>0 && (far||fast) && P.i>0){
+      goTo(P.i-1, true);
+    }else{
+      setX(-P.i*W, true);   // spring back
+    }
+    dragEndAt = performance.now();   // touch fires its synthetic click up to ~300ms later
+  };
+
+  stage.addEventListener("pointerdown", onDown);
+  stage.addEventListener("pointermove", onMove, {passive:false});
+  stage.addEventListener("pointerup", onUp);
+  stage.addEventListener("pointercancel", onUp);
+
+  // tap zones — left third back, rest forward (never over a control)
+  stage.addEventListener("click", e=>{
+    if(dragged && performance.now()-dragEndAt < 400){ e.preventDefault(); e.stopPropagation(); return; }
+    dragged=false;
+    if(e.target.closest("button")) return;
+    const rel = (e.clientX - stage.getBoundingClientRect().left)/W;
+    advance(rel < 0.32 ? -1 : 1);
+  }, true);
+
+  $("#pclose").addEventListener("click", closeLesson);
+  $("#next").addEventListener("click", ()=>advance(1));
+}
+
+function onKey(e){
+  if(!P) return;
+  if(e.key==="Escape") closeLesson();
+  else if(e.key==="ArrowRight"||e.key===" ") { e.preventDefault(); advance(1); }
+  else if(e.key==="ArrowLeft") advance(-1);
+}
+
+/* ============================================================
+   COMPLETION
+   ============================================================ */
+function finish(){
+  P.finished = true;
+  const first = !S.done;
+  if(first){ awardXp(25); P.xp += 25; }
+  S.done = true;
+
+  const acc = P.asked ? Math.round(P.correct/P.asked*100) : 0;
+  if(S.best===null || acc>S.best) S.best = acc;
+
+  const t = dayKey(0);
+  if(S.lastDay!==t){ S.streak = (S.lastDay===dayKey(-1)) ? S.streak+1 : 1; S.lastDay=t; }
+  save();
+
+  const st = liveStreak();
+  const goalHit = S.dayXp >= S.goal;
+
+  window.removeEventListener("resize", layout);
+  playerEl.innerHTML = `
+    <div class="phead" style="padding-top:18px">
+      <span class="pt">${MARK}<span>${MODULE.title}</span></span>
+      <button class="xclose" id="pclose2" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="done">
+      <svg class="burst" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="40" fill="var(--accent)" opacity=".16"/>
+        <circle cx="60" cy="60" r="27" fill="var(--accent)"/>
+        <path d="M48 61l9 9 17-19" fill="none" stroke="var(--card)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M60 6v12M60 102v12M6 60h12M102 60h12M22 22l8 8M90 90l8 8M98 22l-8 8M30 90l-8 8"
+              stroke="var(--accent)" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+      </svg>
+      <h2>Module complete</h2>
+      <p class="sub">${goalHit ? "Daily goal cleared — that's your streak safe for today."
+                               : `${Math.max(0,S.goal-S.dayXp)} XP left on today's goal.`}</p>
+      <div class="scorebox">
+        <div><b>+${P.xp}</b><small>XP earned</small></div>
+        <div><b>${P.asked?acc+"%":"—"}</b><small>Accuracy</small></div>
+        <div><b>${st}</b><small>Day streak</small></div>
+      </div>
+      <p class="sub" style="font-size:13.5px">You judged ${P.correct} of ${P.asked} outputs correctly. Module 02 — How LLMs Work — lands soon.</p>
+    </div>
+    <div class="pfoot">
+      <button class="cta accent" id="againbtn">Practise again</button>
+      <button class="cta" id="homebtn" style="background:none;color:var(--muted);padding:11px 0;font-size:14px">Back to home</button>
+    </div>`;
+  $("#pclose2").addEventListener("click", closeLesson);
+  $("#homebtn").addEventListener("click", closeLesson);
+  $("#againbtn").addEventListener("click", ()=>{ document.removeEventListener("keydown",onKey); openLesson(); });
+  if(first) toast(st>1 ? `${st}-day streak` : "First module complete");
+}
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+function onboarding(){
+  sheetEl.classList.add("on");
+  sheetEl.innerHTML = `
+    <div class="sheet-in">
+      <div class="wordmark">${MARK}<div><b>OPPIJA</b><i>AI literacy practice</i></div></div>
+      <h2>Practise AI literacy, one card at a time.</h2>
+      <p>Short, hands-on modules built for working teachers — real classroom situations, not theory. Pick a daily goal to begin.</p>
+      <div class="goalset">
+        ${[[50,"Light","half a module"],[100,"Steady","one module"],[150,"Deep","two modules"]]
+          .map(g=>`<button class="goalbtn" data-goal="${g[0]}" aria-pressed="${g[0]===100}"><b>${g[1]}</b><small>${g[0]} XP · ${g[2]}</small></button>`).join("")}
+      </div>
+      <button class="cta accent" id="begin">Start learning</button>
+    </div>`;
+  let picked = 100;
+  sheetEl.querySelectorAll("[data-goal]").forEach(b=>b.addEventListener("click",()=>{
+    picked = +b.dataset.goal;
+    sheetEl.querySelectorAll("[data-goal]").forEach(x=>x.setAttribute("aria-pressed", String(+x.dataset.goal===picked)));
+  }));
+  $("#begin").addEventListener("click", ()=>{
+    S.goal=picked; S.onboarded=true; save();
+    sheetEl.classList.remove("on"); sheetEl.innerHTML="";
+    renderHome();
+  });
+}
+
+/* boot */
+renderHome();
+if(!S.onboarded) onboarding();
+</script>
+</body>
+</html>
