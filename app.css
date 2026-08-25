@@ -1,0 +1,356 @@
+/* =============================================================================
+   Oppija — styles
+   Every value here is declared in DESIGN.md. Do not introduce a colour, size or
+   duration that is not on that page.
+   ========================================================================== */
+
+/* ---- tokens -------------------------------------------------------------- */
+:root{
+  --paper:#E8EDEF;
+  --ground:#DAE3E6;          /* desktop surround, one step below paper */
+  --surface:#FFFFFF;
+  --ink:#0E1D26;
+  --ink-soft:#55676F;
+  --line:#D2DDE1;
+  --signal:#146B7C;
+  --signal-tint:#E2EDEF;
+  --affirm:#2A7355;
+  --affirm-tint:#E4EFE9;
+  --warm:#C8791A;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+
+  --r-chip:4px; --r-ctl:12px; --r-panel:20px;
+
+  --f-ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --f-meta:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+
+  --col:420px;               /* player / app column width */
+}
+
+/* ---- reset --------------------------------------------------------------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-ui);
+  font-size:17px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.022em;text-wrap:balance}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+a{color:var(--signal)}
+
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:var(--r-chip)}
+
+.meta{
+  font-family:var(--f-meta);font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-soft);
+}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- app frame ----------------------------------------------------------- */
+.app{
+  position:relative;
+  width:100%;max-width:var(--col);
+  height:100dvh;                       /* never 100vh — iOS toolbar collapse */
+  margin:0 auto;
+  background:var(--paper);
+  overflow:hidden;
+}
+@media (min-width:560px){
+  body{background:var(--ground)}
+  .app{border-left:1px solid var(--line);border-right:1px solid var(--line)}
+}
+
+.screen{display:none;flex-direction:column;height:100%}
+.screen.on{display:flex}
+@media (prefers-reduced-motion:no-preference){
+  .screen.on{animation:fade .12s ease-out}
+}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* =============================================================================
+   LANGUAGE SCREEN
+   ========================================================================== */
+#s-lang{justify-content:center;padding:var(--s7) var(--s5);gap:var(--s5)}
+#s-lang .wordmark{font-size:34px;letter-spacing:-.03em}
+#s-lang .prompt{color:var(--ink-soft)}
+.langbtns{display:flex;flex-direction:column;gap:var(--s3);margin-top:var(--s2)}
+.langbtn{
+  padding:var(--s5);border-radius:var(--r-ctl);
+  background:var(--surface);border:1px solid var(--line);
+  font-size:19px;font-weight:600;text-align:center;
+}
+.langbtn:hover{border-color:var(--signal)}
+
+/* =============================================================================
+   HOME
+   ========================================================================== */
+#s-home{overflow-y:auto;overscroll-behavior:contain}
+.home-head{padding:var(--s6) var(--s5) var(--s4)}
+.home-top{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3)}
+.wordmark{font-size:26px;font-weight:700;letter-spacing:-.03em}
+.langswitch{font-family:var(--f-meta);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--signal);padding:var(--s2);margin:calc(-1 * var(--s2))}
+.promise{margin-top:var(--s3);color:var(--ink-soft);font-size:17px;max-width:34ch}
+.summary{margin-top:var(--s5)}
+.summary .bar{height:4px;border-radius:2px;background:var(--line);margin-top:var(--s2);overflow:hidden}
+.summary .bar i{display:block;height:100%;background:var(--signal);border-radius:2px}
+
+.tiles{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s3) var(--s5) 0}
+.tile{
+  display:flex;align-items:center;gap:var(--s4);width:100%;
+  padding:var(--s4);border-radius:var(--r-ctl);
+  background:var(--surface);border:1px solid var(--line);
+}
+.tile:hover:not([disabled]){border-color:var(--signal)}
+.tile[disabled]{cursor:default;background:transparent;border-style:dashed;color:var(--ink-soft)}
+.tile .n{
+  flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--f-meta);font-size:12px;color:var(--ink-soft);
+  border:1px solid var(--line);
+}
+.tile.done .n{background:var(--signal);border-color:var(--signal);color:var(--surface)}
+.tile .tt{flex:1;min-width:0}
+.tile .tt b{display:block;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.tile .tt span{display:block;margin-top:2px}
+.tile .chev{color:var(--ink-soft);flex:0 0 auto}
+
+.saved{padding:var(--s6) var(--s5) 0}
+.saved h2{font-size:13px}
+.savedlist{display:flex;flex-direction:column;gap:var(--s2);margin-top:var(--s3)}
+.savedlist li{
+  padding:var(--s3) var(--s4);border-radius:var(--r-ctl);
+  background:var(--surface);border:1px solid var(--line);font-size:15px;line-height:1.45;
+}
+.savedlist li.empty{background:transparent;border-style:dashed;color:var(--ink-soft)}
+
+.home-foot{padding:var(--s7) var(--s5) var(--s6);display:flex;flex-direction:column;gap:var(--s3)}
+.home-foot p{font-size:13px;color:var(--ink-soft);line-height:1.5}
+.home-foot button{font-size:13px;color:var(--signal);text-decoration:underline;text-underline-offset:3px;padding:0}
+
+/* =============================================================================
+   PLAYER  — fixed frame. Nothing here scrolls, nothing reflows on answer.
+   ========================================================================== */
+#s-player{display:none}
+#s-player.on{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;height:100%}
+
+.pbar{display:flex;align-items:center;gap:var(--s3);padding:var(--s4) var(--s4) var(--s2)}
+.pclose{
+  width:36px;height:36px;flex:0 0 auto;border-radius:50%;
+  display:grid;place-items:center;color:var(--ink-soft);
+}
+.pclose:hover{background:var(--surface)}
+.track{flex:1;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;background:var(--signal);border-radius:2px;transition:width .2s ease}
+
+/* The card is top-anchored: panel, text and the why link sit together under the
+   progress bar, and .spacer takes whatever height is left over. On short screens
+   .visual shrinks instead (flex-shrink stays on), so nothing ever overflows. */
+.stage{display:flex;flex-direction:column;min-height:0}
+.tapregion{position:relative;flex:0 1 auto;display:flex;flex-direction:column;min-height:0}
+.spacer{flex:1 1 auto;min-height:0}
+/* The panel hugs the drawing's proportions rather than stretching to fill the
+   zone — a diagram stranded in the middle of a tall white box reads as an
+   error. Leftover height becomes breathing room above and below. */
+.visual{flex:0 1 auto;min-height:0;padding:var(--s2) var(--s4) var(--s4);
+  display:flex;flex-direction:column;justify-content:center}
+.panel{
+  width:100%;aspect-ratio:16/11;max-height:100%;
+  border-radius:var(--r-panel);
+  background:var(--surface);border:1px solid var(--line);
+  padding:var(--s4);
+}
+/* height:100% is load-bearing. Left to itself an inline <svg> takes its height
+   from the viewBox ratio, which overflowed the panel whenever the panel was
+   height-constrained (short phones, question cards) and pushed labels out onto
+   the page background. An explicit height overrides the intrinsic ratio, and
+   preserveAspectRatio="meet" then scales the artwork to fit. */
+.panel svg{width:100%;height:100%;display:block}
+
+.cardtext{padding:0 var(--s5) var(--s4);min-height:126px;font-size:19px;line-height:1.45}
+.cardtext.q{min-height:0;padding-bottom:var(--s3);font-weight:600}
+.cardtext b{font-weight:700}
+.cardtext i{font-style:italic}
+
+.zones{position:absolute;inset:0;display:flex}
+.zone{flex:1;background:none;border:0;cursor:pointer}
+.zone.back{flex:0 0 33%}
+.zone:focus-visible{outline:2px solid var(--signal);outline-offset:-4px}
+
+.whyrow{padding:0 var(--s5) var(--s3)}
+.whylink{
+  font-family:var(--f-meta);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--signal);padding:var(--s2) 0;
+}
+
+/* ---- question zone ------------------------------------------------------- */
+.qzone{padding:0 var(--s5)}
+.opts{display:flex;flex-direction:column;gap:var(--s2)}
+.opt{
+  padding:var(--s3) var(--s4);border-radius:var(--r-ctl);
+  background:var(--surface);border:1.5px solid var(--line);
+  font-size:16px;line-height:1.35;min-height:52px;display:flex;align-items:center;
+}
+.opt:hover:not([disabled]){border-color:var(--signal)}
+.opt[disabled]{cursor:default}
+.opt.chosen{border-color:var(--signal)}
+.opt.right{border-color:var(--affirm);background:var(--affirm-tint)}
+.opt.quiet{opacity:.6}
+
+/* Reserved so answering causes no reflow. Empty and invisible until answered.
+   Height covers the tallest possible result: a judgement split bar, its caption,
+   and three lines of feedback — the Finnish worst case. Measured, not guessed;
+   see the reflow check in README. */
+.result{min-height:128px;padding-top:var(--s3)}
+.verdict{font-family:var(--f-meta);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.verdict.ok{color:var(--affirm)}
+.verdict.no{color:var(--ink-soft)}
+.fb{margin-top:var(--s2);font-size:15px;line-height:1.45;color:var(--ink-soft)}
+
+.split{display:flex;height:28px;border-radius:var(--r-chip);overflow:hidden;border:1px solid var(--line)}
+.split div{
+  display:flex;align-items:center;padding:0 var(--s2);
+  font-family:var(--f-meta);font-size:11px;letter-spacing:.06em;
+  background:var(--surface);color:var(--ink-soft);
+}
+.split div.mine{background:var(--signal-tint);color:var(--signal)}
+.split div + div{border-left:1px solid var(--line);justify-content:flex-end}
+.splitcap{margin-top:var(--s2);font-family:var(--f-meta);font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-soft)}
+
+/* ---- action row ---------------------------------------------------------- */
+.actions{
+  display:flex;align-items:center;gap:var(--s2);
+  padding:var(--s3) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));
+}
+.act{
+  width:44px;height:44px;border-radius:var(--r-ctl);
+  display:grid;place-items:center;color:var(--ink-soft);
+}
+.act:hover{background:var(--surface)}
+.act[aria-pressed="true"]{color:var(--signal)}
+
+/* =============================================================================
+   COMPLETION
+   ========================================================================== */
+#s-done{justify-content:center;align-items:center;gap:var(--s4);padding:var(--s7) var(--s5);text-align:center}
+.check{width:88px;height:88px}
+.check circle{fill:none;stroke:var(--warm);stroke-width:4}
+.check path{fill:none;stroke:var(--warm);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:no-preference){
+  .check path{stroke-dasharray:44;stroke-dashoffset:44;animation:draw .4s .12s ease-out forwards}
+  .check{animation:settle .52s ease-out}
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes settle{0%{transform:scale(.94)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+#s-done h2{font-size:28px}
+#s-done .settitle{font-size:19px;color:var(--ink-soft)}
+#s-done .line{color:var(--ink-soft)}
+.btn{
+  padding:var(--s4) var(--s6);border-radius:var(--r-ctl);
+  background:var(--ink);color:var(--paper);font-weight:600;text-align:center;
+}
+.btn:hover{background:var(--signal)}
+.mute{margin-top:var(--s2);font-family:var(--f-meta);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-soft);padding:var(--s2)}
+
+/* =============================================================================
+   SHEETS / OVERLAYS
+   ========================================================================== */
+.sheet{
+  position:absolute;inset:0;z-index:20;display:none;
+  align-items:flex-end;background:rgba(14,29,38,.42);
+}
+.sheet.on{display:flex}
+.sheet-in{
+  width:100%;max-height:82%;overflow-y:auto;
+  background:var(--surface);border-radius:var(--r-panel) var(--r-panel) 0 0;
+  padding:var(--s5) var(--s5) calc(var(--s5) + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:var(--s3);
+}
+@media (prefers-reduced-motion:no-preference){
+  .sheet.on .sheet-in{animation:rise .2s ease-out}
+}
+@keyframes rise{from{transform:translateY(24px)}to{transform:none}}
+.sheet-in h2{font-size:20px}
+.sheet-in p{font-size:16px;line-height:1.55;color:var(--ink-soft)}
+.cite{
+  border-left:3px solid var(--signal);padding-left:var(--s3);
+  font-size:14px;line-height:1.5;color:var(--ink-soft);
+}
+.cite a{word-break:break-all}
+
+/* about overlay uses the full column, not a bottom sheet */
+.overlay{position:absolute;inset:0;z-index:30;display:none;background:var(--paper)}
+.overlay.on{display:flex;flex-direction:column;overflow-y:auto}
+.overlay .inner{padding:var(--s6) var(--s5);display:flex;flex-direction:column;gap:var(--s4)}
+.overlay h2{font-size:26px}
+.overlay p{color:var(--ink-soft);line-height:1.6}
+.overlay .authors{font-weight:600;color:var(--ink)}
+
+/* first-run tap hint */
+.hint{
+  position:absolute;inset:0;z-index:25;display:none;
+  align-items:center;justify-content:center;padding:var(--s5);
+  background:rgba(14,29,38,.72);
+}
+.hint.on{display:flex}
+.hint-in{
+  background:var(--surface);border-radius:var(--r-panel);padding:var(--s5);
+  display:flex;flex-direction:column;gap:var(--s3);text-align:center;max-width:300px;
+}
+.hint-in h2{font-size:20px}
+.hint-in p{color:var(--ink-soft);font-size:16px;line-height:1.5}
+.hint-arrows{display:flex;gap:var(--s2);justify-content:center;color:var(--signal)}
+
+/* toast */
+.toast{
+  position:absolute;left:50%;bottom:96px;z-index:40;
+  transform:translateX(-50%) translateY(10px);
+  padding:10px 18px;border-radius:999px;
+  background:var(--ink);color:var(--paper);
+  font-family:var(--f-meta);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+}
+.toast.on{opacity:1;transform:translateX(-50%)}
+
+/* content validation banner — only ever visible if content.js breaks a rule */
+.badcontent{
+  position:fixed;top:0;left:0;right:0;z-index:99;
+  background:#8A1C1C;color:#fff;padding:12px 16px;
+  font-family:var(--f-meta);font-size:12px;line-height:1.5;
+}
+
+/* =============================================================================
+   SVG classes — the diagram palette lives here, not in svg.js
+   ========================================================================== */
+.diagram{overflow:visible}
+.stroke-ink{stroke:var(--ink);stroke-width:2;fill:none}
+.stroke-line{stroke:var(--line);stroke-width:3}
+.stroke-signal{stroke:var(--signal);stroke-width:3}
+.fill-surface{fill:var(--surface)}
+.fill-signal{fill:var(--signal)}
+.fill-line{fill:var(--line)}
+.arrow{stroke-linecap:round}
+.arrow-strike{stroke-linecap:round;stroke-dasharray:5 7}
+.diagram .lbl{
+  font-family:var(--f-meta);font-size:13px;letter-spacing:.08em;
+  fill:var(--ink);font-weight:600;
+}
+.diagram .ann{
+  font-family:var(--f-meta);font-size:11px;letter-spacing:.08em;fill:var(--signal);
+}
+.diagram .ann.muted{fill:var(--ink-soft)}
+.diagram .ann.strong{fill:var(--signal);font-weight:600}
+
+@media (prefers-reduced-motion:no-preference){
+  .layer.enter{animation:layerin .24s ease-out}
+}
+@keyframes layerin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
