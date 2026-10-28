@@ -1,50 +1,703 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oppija</title>
-<meta name="description" content="Microlearning for teachers' AI literacy. Three minutes a day. No account, no tracking.">
-<meta name="theme-color" content="#E8EDEF">
-<meta name="color-scheme" content="light">
-<meta property="og:title" content="Oppija">
-<meta property="og:description" content="Microlearning for teachers' AI literacy. Three minutes a day.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://www.oppija.com">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="Oppija AI — ten short cards for teachers, and a short survey. Research study, University of Jyväskylä.">
+<title>Oppija AI</title>
+<style>
+:root{
+  --app-bg:#FAF8F5;
+  --post:#FFFFFF;
+  --line:#E7E3DC;
+  --line-soft:#F1EDE7;
+  --text:#191B29;
+  --muted:#6B6F80;
+  --accent:#3A3F9E;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#ECEDFA;
+  --ok:#1F6B4B;
+  --t:150ms cubic-bezier(.4,0,.2,1);
+  --col:460px;
 
-<!-- Favicon is inline so the page makes zero network requests beyond its own files. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23146B7C'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23E8EDEF' stroke-width='6'/%3E%3C/svg%3E">
+  --cat-spark-bg:#FBF0E2;    --cat-spark-fg:#7A4A12;   --cat-spark-a:#E8A74C; --cat-spark-b:#C8642A;
+  --cat-mirror-bg:#EFEAFB;   --cat-mirror-fg:#4B3195;  --cat-mirror-a:#8E7BE8; --cat-mirror-b:#5A3FBF;
+  --cat-bridge-bg:#FBE9EC;   --cat-bridge-fg:#8A2C42;  --cat-bridge-a:#E8808F; --cat-bridge-b:#B93E5C;
+  --cat-compass-bg:#E3F2F0;  --cat-compass-fg:#11574E; --cat-compass-a:#5FB5A5; --cat-compass-b:#1C7A6B;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --app-bg:#0F1018; --post:#191B26; --line:#2A2D3E; --line-soft:#222432;
+    --text:#ECEAF3; --muted:#A0A4B8; --accent:#9CA2FF; --accent-ink:#141531;
+    --accent-soft:#232642; --ok:#7FD0A8;
+    --cat-spark-bg:#2C2317;    --cat-spark-fg:#EBC489;   --cat-spark-a:#C9913F; --cat-spark-b:#8A5522;
+    --cat-mirror-bg:#221D3C;   --cat-mirror-fg:#C3B6F7;  --cat-mirror-a:#7A67D6; --cat-mirror-b:#4A32A0;
+    --cat-bridge-bg:#2C1B24;   --cat-bridge-fg:#F0A9BA;  --cat-bridge-a:#C96A7C; --cat-bridge-b:#8E3049;
+    --cat-compass-bg:#122B27;  --cat-compass-fg:#8FD6C9; --cat-compass-a:#4E9C8E; --cat-compass-b:#146457;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--app-bg);color:var(--text);font-size:17px;line-height:1.5;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:1ms!important}}
 
-<link rel="stylesheet" href="app.css">
+.wrap{max-width:var(--col);margin:0 auto;padding:0 16px calc(40px + env(safe-area-inset-bottom))}
+.screen{animation:fade .25s cubic-bezier(.2,.8,.2,1)}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+[hidden]{display:none!important}
+
+/* ---------- chrome ---------- */
+.bar{position:sticky;top:0;z-index:20;background:var(--app-bg);padding-top:calc(12px + env(safe-area-inset-top))}
+.bar .inner{max-width:var(--col);margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px}
+.brand{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.brand span{font-weight:600;color:var(--muted);font-size:11px;display:block;letter-spacing:0}
+.step{margin-left:auto;font-size:12.5px;font-weight:650;color:var(--muted);font-variant-numeric:tabular-nums}
+.track{height:4px;border-radius:99px;background:var(--line);margin:10px 16px 0;max-width:var(--col);
+  margin-left:auto;margin-right:auto}
+.track i{display:block;height:100%;border-radius:99px;background:var(--accent);width:0;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+
+/* ---------- typography ---------- */
+h1{font-size:26px;line-height:1.2;letter-spacing:-.025em;font-weight:700;margin:0}
+h2{font-size:21px;line-height:1.25;letter-spacing:-.02em;font-weight:650;margin:0}
+p{margin:0}
+.lede{color:var(--muted);font-size:15.5px;line-height:1.5;margin-top:10px}
+.tiny{font-size:12.5px;color:var(--muted);line-height:1.45}
+
+/* ---------- the card ---------- */
+.post{background:var(--post);border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(25,27,41,.04),0 10px 30px rgba(25,27,41,.06);margin-top:16px}
+@media (prefers-color-scheme:dark){.post{box-shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.4)}}
+.head{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.avatar{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;
+  color:#fff;font-weight:700;font-size:15px;box-shadow:0 0 0 2px var(--post),0 0 0 3.5px var(--ring,var(--accent))}
+.who{min-width:0;flex:1}
+.who b{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:650}
+.who b svg{width:13px;height:13px;color:var(--accent);flex:none}
+.who>span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-weight:700}
+.media{padding:22px 18px;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.illus{height:62px;margin-bottom:14px;display:flex;align-items:center;opacity:.9}
+.illus svg{height:100%;width:auto;max-width:100%}
+.il .m{fill:currentColor;opacity:.15;stroke:none}
+.il .s{fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.il .d{fill:currentColor;stroke:none;opacity:.8}
+.il .f{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;opacity:.35}
+.media h2{margin-bottom:14px;font-size:clamp(20px,5.4vw,24px)}
+.blk{margin-bottom:13px}
+.blk:last-child{margin-bottom:0}
+.blk .lab{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;opacity:.9}
+.blk p{font-size:16px;line-height:1.5}
+
+.card[data-cat="Spark"]   .media{background:var(--cat-spark-bg)}
+.card[data-cat="Mirror"]  .media{background:var(--cat-mirror-bg)}
+.card[data-cat="Bridge"]  .media{background:var(--cat-bridge-bg)}
+.card[data-cat="Compass"] .media{background:var(--cat-compass-bg)}
+.card[data-cat="Spark"]   .avatar{background:linear-gradient(135deg,var(--cat-spark-a),var(--cat-spark-b));--ring:var(--cat-spark-a)}
+.card[data-cat="Mirror"]  .avatar{background:linear-gradient(135deg,var(--cat-mirror-a),var(--cat-mirror-b));--ring:var(--cat-mirror-a)}
+.card[data-cat="Bridge"]  .avatar{background:linear-gradient(135deg,var(--cat-bridge-a),var(--cat-bridge-b));--ring:var(--cat-bridge-a)}
+.card[data-cat="Compass"] .avatar{background:linear-gradient(135deg,var(--cat-compass-a),var(--cat-compass-b));--ring:var(--cat-compass-a)}
+.card[data-cat="Spark"]   .tag,.card[data-cat="Spark"]   .illus,.card[data-cat="Spark"]   .blk .lab{color:var(--cat-spark-fg)}
+.card[data-cat="Mirror"]  .tag,.card[data-cat="Mirror"]  .illus,.card[data-cat="Mirror"]  .blk .lab{color:var(--cat-mirror-fg)}
+.card[data-cat="Bridge"]  .tag,.card[data-cat="Bridge"]  .illus,.card[data-cat="Bridge"]  .blk .lab{color:var(--cat-bridge-fg)}
+.card[data-cat="Compass"] .tag,.card[data-cat="Compass"] .illus,.card[data-cat="Compass"] .blk .lab{color:var(--cat-compass-fg)}
+
+/* ---------- the one question ---------- */
+.ask{padding:16px 14px}
+.ask .q{font-size:15px;font-weight:650;margin-bottom:11px;line-height:1.35}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:11px;width:100%;text-align:left;min-height:52px;
+  padding:11px 13px;border-radius:12px;border:1.5px solid var(--line);background:var(--app-bg);
+  font-size:15px;line-height:1.3;transition:all var(--t)}
+.opt:hover{border-color:var(--accent)}
+.opt .dot{width:18px;height:18px;border-radius:50%;flex:none;position:relative;
+  border:2px solid var(--muted);opacity:.55;transition:all var(--t)}
+.opt.on{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.opt.on .dot{background:var(--accent);border-color:var(--accent);opacity:1}
+.opt.on .dot::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--post)}
+
+/* ---------- buttons ---------- */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;
+  padding:14px 18px;border-radius:14px;background:var(--accent);color:var(--accent-ink);
+  font-size:16.5px;font-weight:650;transition:opacity var(--t),transform var(--t)}
+.btn:hover{opacity:.93}
+.btn:active{transform:scale(.99)}
+.btn[disabled]{opacity:.4;cursor:default}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:550}
+
+/* ---------- consent ---------- */
+.consent{background:var(--post);border:1px solid var(--line);border-radius:18px;padding:20px 18px;margin-top:18px}
+.consent p{font-size:15.5px;line-height:1.58}
+.consent p+p{margin-top:12px}
+.what{background:var(--accent-soft);border-radius:14px;padding:14px 16px;margin-top:16px}
+.what ul{margin:8px 0 0;padding-left:20px;font-size:14.5px;line-height:1.55}
+.what li{margin-bottom:3px}
+.what b{font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- survey ---------- */
+.qblock{background:var(--post);border:1px solid var(--line);border-radius:16px;padding:16px 15px;margin-top:14px}
+.qblock .qn{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;margin-bottom:6px}
+.qblock .qt{font-size:16px;font-weight:650;line-height:1.35;margin-bottom:12px}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.scale button{min-height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--app-bg);
+  font-size:16px;font-weight:650;transition:all var(--t)}
+.scale button:hover{border-color:var(--accent)}
+.scale button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.scale-ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:7px}
+textarea{width:100%;min-height:130px;padding:14px;border:1.5px solid var(--line);border-radius:14px;
+  background:var(--app-bg);color:var(--text);font:inherit;font-size:16px;line-height:1.5;resize:vertical}
+textarea:focus{border-color:var(--accent);outline:none}
+
+/* ---------- done ---------- */
+.done{text-align:center;padding:12vh 0 0}
+.done .mark{width:72px;height:72px;border-radius:50%;background:var(--ok);margin:0 auto 22px;display:grid;place-items:center}
+.done .mark svg{width:36px;height:36px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);z-index:60;
+  max-width:calc(100% - 36px);padding:12px 18px;border-radius:13px;background:var(--text);color:var(--app-bg);
+  font-size:14.5px;opacity:0;pointer-events:none;transition:all var(--t);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.foot{text-align:center;margin-top:22px}
+</style>
 </head>
 <body>
 
-<!-- Every string below is injected from content.js. There is no user-visible
-     text hardcoded in this file. -->
-<main class="app" id="app">
+<header class="bar">
+  <div class="inner">
+    <span class="brand">Oppija AI<span id="brandsub">Research study</span></span>
+    <span class="step" id="step"></span>
+  </div>
+  <div class="track"><i id="track"></i></div>
+</header>
 
-  <!-- 1. language (first visit only) -->
-  <section class="screen" id="s-lang" aria-labelledby="lang-h"></section>
+<main class="wrap" id="main"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/* ============================================================
+   Oppija AI — teacher study
+   Ten cards, one question each, then a ten-question survey.
+   Plain HTML, CSS and vanilla JS. No build step, no dependencies.
+   ------------------------------------------------------------
+   PASTE YOUR APPS SCRIPT URL HERE. Leave it as it is and every
+   answer is written to the browser console instead, so the app
+   still works end to end for testing.
+   ============================================================ */
 
-  <!-- 2. home -->
-  <section class="screen" id="s-home"></section>
+const LOG_ENDPOINT = "PASTE_URL_HERE";
 
-  <!-- 3. card player -->
-  <section class="screen" id="s-player"></section>
+/* ---------- the ten cards ----------------------------------
+   Alternating: AI literacy (Compass) on every odd card.
+   Each card stands alone — no series, no dependencies.
+   To edit, change the text below. Nothing else needs touching. */
 
-  <!-- 4. completion -->
-  <section class="screen" id="s-done"></section>
+const CARDS = [
+  { id: "c01", module: "Compass", topic: "Critical AI evaluation", illus: "ref",
+    title: "The textbook reference that doesn't exist",
+    scenario: "A teacher asks AI for a supporting reference for a lesson. The book, author or page number looks convincing, but cannot be found.",
+    takeaway: "Verify references against the original textbook or a trusted source before using them in class." },
 
-  <!-- overlays -->
-  <div class="sheet"   id="sheet"   role="dialog" aria-modal="true"></div>
-  <div class="overlay" id="about"   role="dialog" aria-modal="true"></div>
-  <div class="hint"    id="hint"    role="dialog" aria-modal="true"></div>
-  <div class="toast"   id="toast"   role="status" aria-live="polite"></div>
+  { id: "c02", module: "Spark", topic: "Student engagement", illus: "quiet",
+    title: "The quiet child who knew the answer",
+    scenario: "In a crowded classroom, the same confident students answer every question. A quiet child understands the lesson but rarely speaks.",
+    takeaway: "Use think-pair-share, written responses or small-group discussion to give every learner a way to participate." },
 
-</main>
+  { id: "c03", module: "Compass", topic: "AI literacy", illus: "think",
+    title: "AI can help you plan. Let students do the thinking.",
+    scenario: "A teacher uses AI to prepare a worksheet. Students then copy AI-generated answers without understanding the concepts.",
+    takeaway: "Use AI to create prompts, examples and practice activities, but ask students to explain their reasoning in their own words." },
 
-<script src="content.js"></script>
-<script src="svg.js"></script>
-<script src="app.js"></script>
+  { id: "c04", module: "Mirror", topic: "Critical thinking", illus: "error",
+    title: "Can your students spot the mistake?",
+    scenario: "Students see a worked mathematics solution or a grammar explanation that contains a deliberate mistake.",
+    takeaway: "Ask learners to identify, explain and correct the error instead of simply accepting a worked answer. Make clear that the error is intentional." },
+
+  { id: "c05", module: "Compass", topic: "Responsible AI use", illus: "detect",
+    title: "A student's essay sounds like AI. Now what?",
+    scenario: "A student's assignment seems unusually polished, and the teacher suspects AI assistance.",
+    takeaway: "Do not treat an AI detector score as proof. Discuss the work with the student and use a short explanation, oral question or supervised task to understand their learning." },
+
+  { id: "c06", module: "Bridge", topic: "Interpersonal skills", illus: "call",
+    title: "A parent call that builds trust",
+    scenario: "A teacher needs to call a parent about a child's progress without making the conversation feel like a complaint.",
+    takeaway: "Start with a specific strength, describe one concern using observable examples, and agree on one practical next step together." },
+
+  { id: "c07", module: "Compass", topic: "Effective prompting", illus: "task",
+    title: "Give AI a clear classroom task",
+    scenario: "A teacher asks AI to “make a lesson” and receives material that is too difficult, too long or unsuitable for the class.",
+    takeaway: "Specify the grade, learning objective, language level, classroom constraints and desired output. Review the result before using it." },
+
+  { id: "c08", module: "Spark", topic: "Differentiated instruction", illus: "three",
+    title: "Explain a difficult idea in three ways",
+    scenario: "Some students understand a concept immediately; others need a familiar example, a visual explanation or simpler language.",
+    takeaway: "Ask AI for three age-appropriate explanations of the same concept, then select and adapt the ones that fit your students. Check accuracy first." },
+
+  { id: "c09", module: "Compass", topic: "Modelling verification", illus: "wrong",
+    title: "When AI gets a familiar answer wrong",
+    scenario: "AI gives an incorrect explanation of a familiar local example, science concept or textbook question.",
+    takeaway: "Show students how to cross-check an AI answer with their textbook, evidence or a worked example. Model how to correct it and explain why." },
+
+  { id: "c10", module: "Bridge", topic: "Difficult conversations", illus: "marks",
+    title: "Talking to a parent about falling marks",
+    scenario: "A student's marks have fallen, and the teacher needs to discuss the issue with the family without blame or embarrassment.",
+    takeaway: "Describe the change using specific evidence, ask about possible barriers, listen without assumptions and agree on one achievable follow-up action." }
+];
+
+/* ---------- the one question asked on every card ----------
+   Deliberately identical on all ten. Card-specific options would
+   read better but would make the ten cards impossible to compare,
+   and comparing them is the whole point of this study. */
+
+const ASK = {
+  q: "Would this help you in your everyday classes?",
+  opts: [
+    "Yes — I could use this as it is",
+    "Yes — but I would adapt it first",
+    "Interesting, but not for my classes",
+    "No — this would not help me"
+  ]
+};
+
+/* ---------- the closing survey ---------- */
+
+const SURVEY = [
+  { id: "s01", type: "scale", t: "Overall, how useful were these ten cards to you?",
+    lo: "Not useful", hi: "Very useful" },
+
+  { id: "s02", type: "choice", t: "Which kind of card was most useful to you?",
+    opts: ["Using AI well in teaching", "Engaging students in class",
+           "Checking whether students understood", "Talking to parents and colleagues"] },
+
+  { id: "s03", type: "choice", t: "How often would you realistically open something like this?",
+    opts: ["Before most classes", "A few times a week", "About once a week",
+           "Only occasionally", "I would not use it"] },
+
+  { id: "s04", type: "choice", t: "When in your day would you be most likely to use it?",
+    opts: ["Just before a class", "During a free period", "While planning at home",
+           "Before meeting a parent", "While travelling to school"] },
+
+  { id: "s05", type: "choice", t: "How was the amount of text on each card?",
+    opts: ["Too little — I wanted more detail", "About right",
+           "A little long", "Too long to read before a class"] },
+
+  { id: "s06", type: "scale", t: "How much did you trust the content on these cards?",
+    lo: "Not at all", hi: "Completely" },
+
+  { id: "s07", type: "scale", t: "After these cards, how confident do you feel about using AI in your teaching?",
+    lo: "Not confident", hi: "Very confident" },
+
+  { id: "s08", type: "choice", t: "Did these cards change how you think about using AI in class?",
+    opts: ["Yes, clearly", "Somewhat", "Not really", "No — I already worked this way"] },
+
+  { id: "s09", type: "choice", t: "If this became a real app, how should teachers get it?",
+    opts: ["The school should provide it", "The government or board should provide it",
+           "It should be free for any teacher", "I would pay for it myself", "I am not sure"] },
+
+  { id: "s10", type: "choice", t: "What would most likely stop you from using it?",
+    opts: ["No time during the school day", "Internet or device problems",
+           "My school would not allow it", "Not relevant to my subject or grade",
+           "I prefer my own material", "Nothing — I would use it"] }
+];
+
+const FREETEXT = {
+  id: "s11",
+  t: "In your own words",
+  hint: "What would make this genuinely useful in your week? And what did we get wrong? Write as much or as little as you like.",
+  placeholder: "Optional, but this is the part we learn the most from."
+};
+
+/* ---------- consent, shown before card 1 ---------- */
+
+const CONSENT = {
+  body: [
+    "This survey asks about your current attitudes and experiences with AI tools in teaching. There are no right or wrong answers. Your responses are confidential and will be used only for research purposes.",
+    "By proceeding I confirm that my participation is voluntary and I consent to my anonymised responses being used for academic research at the Faculty of Information Technology, University of Jyväskylä, Finland and publishing of the data in Finnish Social Science Data Archive."
+  ],
+  recorded: ["Which cards you were shown", "Your answer on each card",
+             "Your survey answers and anything you write", "The date and time, and how long each card was open"],
+  notRecorded: ["Your name, email or phone number", "Your school or location",
+                "Anything at all about your students", "Any cookie or tracker"],
+  agree: "I understand and I consent",
+  decline: "No thank you"
+};
+
+/* ============================================================
+   Below here is the app. You should not need to edit it to
+   change the content — the cards, the question and the survey
+   are all above.
+   ============================================================ */
+
+/* ---------- illustrations (inline SVG, nothing is fetched) ---------- */
+
+function il(inner) {
+  return '<svg class="il" viewBox="0 0 96 64" aria-hidden="true" focusable="false">' + inner + '</svg>';
+}
+
+const ILLUS = {
+  /* a reference that will not resolve */
+  ref: il('<rect class="m" x="8" y="14" width="50" height="36" rx="5"/><path class="s" d="M16 26h30M16 34h22"/><path class="s" d="M64 26l6-6a7 7 0 0 1 10 10l-4 4M78 42l-4 4a7 7 0 0 1-10-10"/><path class="f" d="M68 32l6 6"/>'),
+
+  /* two hands up, one child quiet */
+  quiet: il('<circle class="s" cx="18" cy="43" r="9"/><path class="s" d="M18 34V17"/><circle class="s" cx="48" cy="43" r="9"/><path class="s" d="M48 34V17"/><circle class="m" cx="78" cy="43" r="10"/><circle class="s" cx="78" cy="43" r="9"/><circle class="d" cx="78" cy="21" r="3.4"/>'),
+
+  /* the plan is AI-made, the thinking is not */
+  think: il('<rect class="m" x="6" y="12" width="30" height="40" rx="4"/><path class="s" d="M6 12h30v40H6z"/><path class="s" d="M13 24h16M13 32h16M13 40h10"/><path class="f" d="M44 32h12"/><path class="s" d="M52 27l5 5-5 5"/><path class="s" d="M72 46h10M74 51h6"/><path class="s" d="M77 18a10 10 0 0 1 5 18v4h-10v-4a10 10 0 0 1 5-18z"/>'),
+
+  /* a worked answer with one planted mistake */
+  error: il('<rect class="m" x="10" y="8" width="58" height="48" rx="5"/><path class="s" d="M20 20h38M20 30h38M20 41h16"/><ellipse class="s" cx="54" cy="41" rx="14" ry="9"/><circle class="d" cx="82" cy="41" r="3"/>'),
+
+  /* a percentage that is not proof */
+  detect: il('<path class="m" d="M12 46a36 36 0 0 1 72 0z"/><path class="s" d="M12 46a36 36 0 0 1 72 0"/><path class="s" d="M48 46l16-16"/><path class="s" d="M42 14a7 7 0 0 1 12 5c0 5-6 5-6 9"/><circle class="d" cx="48" cy="54" r="2.4"/>'),
+
+  /* the call that is not a complaint */
+  call: il('<rect class="m" x="30" y="6" width="36" height="52" rx="7"/><path class="s" d="M42 44a8 8 0 0 0 12 0"/><circle class="d" cx="43" cy="30" r="2.6"/><circle class="d" cx="53" cy="30" r="2.6"/><path class="s" d="M14 16l6 4M10 32h7M14 48l6-4M82 16l-6 4M86 32h-7M82 48l-6-4"/>'),
+
+  /* a vague ask versus a specified one */
+  task: il('<rect class="m" x="12" y="10" width="72" height="12" rx="6"/><rect class="m" x="12" y="26" width="56" height="12" rx="6"/><rect class="s" x="12" y="42" width="40" height="12" rx="6"/><circle class="d" cx="76" cy="48" r="3"/>'),
+
+  /* one idea, three explanations */
+  three: il('<circle class="d" cx="14" cy="32" r="4"/><path class="s" d="M18 32h20M38 32l18-18h22M38 32h40M38 32l18 18h22"/><rect class="m" x="78" y="8" width="14" height="12" rx="3"/><rect class="m" x="78" y="26" width="14" height="12" rx="3"/><rect class="m" x="78" y="44" width="14" height="12" rx="3"/>'),
+
+  /* a familiar answer, confidently wrong */
+  wrong: il('<rect class="m" x="10" y="8" width="76" height="40" rx="4"/><path class="s" d="M10 8h76v40H10z"/><path class="s" d="M48 48v8M34 60h28"/><path class="s" d="M42 22l12 12M54 22L42 34"/>'),
+
+  /* marks that have fallen */
+  marks: il('<path class="f" d="M14 8v44h70"/><path class="s" d="M22 17l16 12 13-5 19 18"/><circle class="d" cx="70" cy="42" r="3.6"/>')
+};
+
+const VERIFIED = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 1.8l2.4 2.1 3.2-.3.9 3.1 2.8 1.6-1.3 2.9 1.3 2.9-2.8 1.6-.9 3.1-3.2-.3L12 22.2l-2.4-2.1-3.2.3-.9-3.1L2.7 15.7 4 12.8 2.7 9.9l2.8-1.6.9-3.1 3.2.3z"/><path d="M8.3 12.4l2.5 2.5 4.9-5.3" fill="none" stroke="var(--post)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+/* ============================================================
+   LOGGING
+   One row per answer, sent the moment it is given, so a teacher
+   who stops at card 6 still leaves six cards of usable data.
+   Nothing identifying is ever sent — see PAYLOAD below.
+   ============================================================ */
+
+let QUEUE = [];
+let BUSY = false;
+
+function endpointReady() {
+  return typeof LOG_ENDPOINT === "string" && LOG_ENDPOINT && LOG_ENDPOINT !== "PASTE_URL_HERE";
+}
+
+/* A random id for this sitting only. It is never stored, never
+   reused, and cannot be traced back to a person — it exists so
+   one teacher's ten answers can be read as one response. */
+function makeSession() {
+  try {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  } catch (e) { }
+  return "s-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+
+const SESSION = makeSession();
+const STARTED = Date.now();
+
+function log(event, data) {
+  try {
+    const row = {
+      session: SESSION,
+      ts: new Date().toISOString(),
+      event: event,
+      card_id: "", question: "", answer: "", seconds: "", idx: "",
+      lang: (navigator.language || "")
+    };
+    if (data) for (const k in data) { if (k in row) row[k] = data[k]; }
+    row.event = event;
+    QUEUE.push(row);
+    flush();
+  } catch (e) { /* logging must never break the study */ }
+}
+
+function post(row) {
+  try {
+    const body = JSON.stringify(row);
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: "text/plain;charset=UTF-8" });
+      if (navigator.sendBeacon(LOG_ENDPOINT, blob)) return Promise.resolve(true);
+    }
+    return fetch(LOG_ENDPOINT, {
+      method: "POST", body: body, keepalive: true, mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" }
+    }).then(function () { return true; }).catch(function () { return false; });
+  } catch (e) { return Promise.resolve(false); }
+}
+
+function flush() {
+  try {
+    if (BUSY || !QUEUE.length) return;
+    if (!endpointReady()) {
+      while (QUEUE.length) console.log("[oppija]", QUEUE.shift());
+      return;
+    }
+    BUSY = true;
+    const batch = QUEUE; QUEUE = [];
+    Promise.all(batch.map(function (r) {
+      return post(r).then(function (ok) { return ok ? null : r; }).catch(function () { return r; });
+    })).then(function (res) {
+      res.forEach(function (r) { if (r) QUEUE.push(r); });
+    }).catch(function () {
+      batch.forEach(function (r) { QUEUE.push(r); });
+    }).then(function () { BUSY = false; });
+  } catch (e) { BUSY = false; }
+}
+
+window.addEventListener("online", flush);
+window.addEventListener("pagehide", flush);
+document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "hidden") flush();
+});
+setInterval(flush, 15000);
+
+/* ============================================================
+   APP
+   ============================================================ */
+
+const main = document.getElementById("main");
+const stepEl = document.getElementById("step");
+const trackEl = document.getElementById("track");
+const toastEl = document.getElementById("toast");
+
+const STATE = { step: "consent", card: 0, cardEnteredAt: 0, survey: {}, text: "" };
+const TOTAL_STEPS = CARDS.length + 2;   /* consent + ten cards + survey */
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+let toastTimer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2400);
+}
+
+function setProgress(done, label) {
+  trackEl.style.width = Math.round((done / TOTAL_STEPS) * 100) + "%";
+  stepEl.textContent = label || "";
+}
+
+function go(fn) { window.scrollTo(0, 0); fn(); }
+
+/* ---------- consent ---------- */
+
+function renderConsent() {
+  STATE.step = "consent";
+  setProgress(0, "");
+  document.getElementById("brandsub").textContent = "Research study";
+  main.innerHTML =
+    '<section class="screen">' +
+      '<div style="height:10px"></div>' +
+      '<h1>Before you start</h1>' +
+      '<div class="consent">' +
+        CONSENT.body.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join("") +
+        '<div class="what">' +
+          '<b>What is recorded</b>' +
+          '<ul>' + CONSENT.recorded.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
+        '</div>' +
+        '<div class="what" style="background:transparent;border:1px solid var(--line)">' +
+          '<b>What is never recorded</b>' +
+          '<ul>' + CONSENT.notRecorded.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
+        '</div>' +
+        '<p class="tiny" style="margin-top:14px">It takes about eight minutes. You can close this page at any point, and anything already answered stays anonymous.</p>' +
+      '</div>' +
+      '<div style="margin-top:16px">' +
+        '<button class="btn" id="agree" type="button">' + esc(CONSENT.agree) + '</button>' +
+        '<button class="btn ghost" id="decline" type="button" style="margin-top:10px">' + esc(CONSENT.decline) + '</button>' +
+      '</div>' +
+    '</section>';
+
+  document.getElementById("agree").onclick = function () {
+    log("consent_yes", {});
+    go(function () { renderCard(0); });
+  };
+  document.getElementById("decline").onclick = function () {
+    log("consent_no", {});
+    go(renderDeclined);
+  };
+}
+
+function renderDeclined() {
+  STATE.step = "declined";
+  setProgress(0, "");
+  main.innerHTML =
+    '<section class="screen done">' +
+      '<h2>That is absolutely fine.</h2>' +
+      '<p class="lede" style="max-width:320px;margin:12px auto 0">Thank you for taking the time to look. Nothing has been recorded apart from the fact that someone declined.</p>' +
+      '<p class="lede" style="margin-top:18px">You can close this page.</p>' +
+    '</section>';
+  flush();
+}
+
+/* ---------- cards ---------- */
+
+function renderCard(i) {
+  STATE.step = "card";
+  STATE.card = i;
+  STATE.cardEnteredAt = Date.now();
+  const c = CARDS[i];
+  setProgress(i + 1, "Card " + (i + 1) + " of " + CARDS.length);
+  document.getElementById("brandsub").textContent = c.module + " · " + c.topic;
+
+  main.innerHTML =
+    '<section class="screen card" data-cat="' + esc(c.module) + '">' +
+      '<article class="post">' +
+        '<div class="head">' +
+          '<span class="avatar" aria-hidden="true">O</span>' +
+          '<span class="who"><b>oppija' + VERIFIED + '</b>' +
+            '<span><span class="tag">' + esc(c.module) + '</span> · ' + esc(c.topic) + '</span></span>' +
+        '</div>' +
+        '<div class="media">' +
+          (ILLUS[c.illus] ? '<div class="illus">' + ILLUS[c.illus] + '</div>' : '') +
+          '<h2>' + esc(c.title) + '</h2>' +
+          '<div class="blk"><div class="lab">What happens</div><p>' + esc(c.scenario) + '</p></div>' +
+          '<div class="blk"><div class="lab">Takeaway</div><p>' + esc(c.takeaway) + '</p></div>' +
+        '</div>' +
+        '<div class="ask">' +
+          '<p class="q">' + esc(ASK.q) + '</p>' +
+          '<div class="opts">' +
+            ASK.opts.map(function (o, n) {
+              return '<button class="opt" type="button" data-a="' + n + '">' +
+                '<span class="dot"></span><span>' + esc(o) + '</span></button>';
+            }).join("") +
+          '</div>' +
+        '</div>' +
+      '</article>' +
+      '<p class="tiny foot">One tap, then the next card.</p>' +
+    '</section>';
+
+  log("card_view", { card_id: c.id, idx: i + 1 });
+
+  let answered = false;
+  Array.prototype.forEach.call(main.querySelectorAll("[data-a]"), function (b) {
+    b.onclick = function () {
+      if (answered) return;
+      answered = true;
+      b.classList.add("on");
+      const n = +b.dataset.a;
+      log("card_answer", {
+        card_id: c.id, idx: i + 1,
+        question: ASK.q, answer: ASK.opts[n],
+        seconds: Math.round((Date.now() - STATE.cardEnteredAt) / 1000)
+      });
+      setTimeout(function () {
+        go(function () {
+          if (i + 1 < CARDS.length) renderCard(i + 1);
+          else renderSurvey();
+        });
+      }, 420);
+    };
+  });
+}
+
+/* ---------- survey ---------- */
+
+function renderSurvey() {
+  STATE.step = "survey";
+  setProgress(CARDS.length + 1, "Last part");
+  document.getElementById("brandsub").textContent = "A few questions about all of it";
+
+  main.innerHTML =
+    '<section class="screen">' +
+      '<div style="height:10px"></div>' +
+      '<h1>Last part</h1>' +
+      '<p class="lede">Ten quick questions about the whole set, then one box where you can say whatever you like. Nothing here is compulsory.</p>' +
+      SURVEY.map(function (q, n) {
+        let body;
+        if (q.type === "scale") {
+          body = '<div class="scale" data-q="' + q.id + '">' +
+            [1, 2, 3, 4, 5].map(function (v) {
+              return '<button type="button" data-v="' + v + '">' + v + '</button>';
+            }).join("") + '</div>' +
+            '<div class="scale-ends"><span>' + esc(q.lo) + '</span><span>' + esc(q.hi) + '</span></div>';
+        } else {
+          body = '<div class="opts" data-q="' + q.id + '">' +
+            q.opts.map(function (o) {
+              return '<button class="opt" type="button" data-v="' + esc(o) + '">' +
+                '<span class="dot"></span><span>' + esc(o) + '</span></button>';
+            }).join("") + '</div>';
+        }
+        return '<div class="qblock">' +
+          '<div class="qn">QUESTION ' + (n + 1) + ' OF ' + SURVEY.length + '</div>' +
+          '<div class="qt">' + esc(q.t) + '</div>' + body + '</div>';
+      }).join("") +
+
+      '<div class="qblock">' +
+        '<div class="qn">IN YOUR OWN WORDS</div>' +
+        '<div class="qt">' + esc(FREETEXT.hint) + '</div>' +
+        '<textarea id="freetext" placeholder="' + esc(FREETEXT.placeholder) + '"></textarea>' +
+      '</div>' +
+
+      '<button class="btn" id="submit" type="button" style="margin-top:18px">Submit and finish</button>' +
+      '<p class="tiny foot">You can submit with questions left blank.</p>' +
+    '</section>';
+
+  /* each answer is logged as it is given, so a part-finished survey
+     still counts for something */
+  Array.prototype.forEach.call(main.querySelectorAll("[data-q]"), function (group) {
+    const qid = group.dataset.q;
+    const q = SURVEY.filter(function (x) { return x.id === qid; })[0];
+    Array.prototype.forEach.call(group.querySelectorAll("button"), function (b) {
+      b.onclick = function () {
+        Array.prototype.forEach.call(group.querySelectorAll("button"), function (o) {
+          o.classList.remove("on");
+        });
+        b.classList.add("on");
+        STATE.survey[qid] = b.dataset.v;
+        log("survey_answer", { question: q.t, answer: b.dataset.v, idx: qid });
+      };
+    });
+  });
+
+  document.getElementById("submit").onclick = function () {
+    const txt = (document.getElementById("freetext").value || "").trim();
+    if (txt) log("free_text", { question: FREETEXT.t, answer: txt.slice(0, 4000), idx: FREETEXT.id });
+    log("survey_submit", {
+      answer: Object.keys(STATE.survey).length + " of " + SURVEY.length + " answered",
+      seconds: Math.round((Date.now() - STARTED) / 1000)
+    });
+    flush();
+    go(renderDone);
+  };
+}
+
+/* ---------- done ---------- */
+
+function renderDone() {
+  STATE.step = "done";
+  setProgress(TOTAL_STEPS, "Finished");
+  document.getElementById("brandsub").textContent = "Thank you";
+  main.innerHTML =
+    '<section class="screen done">' +
+      '<div class="mark">' + TICK + '</div>' +
+      '<h1>Thank you.</h1>' +
+      '<p class="lede" style="max-width:340px;margin:14px auto 0">Your answers are in, anonymously. They go straight into deciding what the real app should do.</p>' +
+      '<p class="tiny" style="margin-top:22px">Faculty of Information Technology, University of Jyväskylä</p>' +
+      '<p class="tiny" style="margin-top:6px">You can close this page now.</p>' +
+    '</section>';
+  flush();
+}
+
+/* ---------- boot ---------- */
+
+try {
+  renderConsent();
+  log("opened", {});
+} catch (e) {
+  console.error(e);
+}
+</script>
 </body>
 </html>
